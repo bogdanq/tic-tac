@@ -14,3 +14,9 @@ export type Game = {
   game: GameStatus;
   vinner: TicTac | null;
 };
+
+export type User = {
+  name: string;
+  type: TicTac;
+  ai: boolean;
+};

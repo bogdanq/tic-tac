@@ -1,7 +1,14 @@
 import { createEvent, Event, forward } from "effector";
 import { delay } from "patronum/delay";
 
-import { TicTac } from "./types";
+import { Game, GameStatus, TicTac } from "./types";
+
+export const mockUsers = [
+  { name: "bogdan", type: TicTac.Cross, ai: false },
+  { name: "dima", type: TicTac.Zero, ai: false },
+];
+
+export const mockAi = { name: "Ai bot", type: TicTac.Zero, ai: true };
 
 export function checkTicTacCeilsByName(
   state: TicTac[],
@@ -49,49 +56,7 @@ export const areaMockData = [
   TicTac.Empty,
   TicTac.Empty,
   TicTac.Empty,
-  // TicTac.Zero,
-  // TicTac.Empty,
-  // TicTac.Cross,
-  // TicTac.Cross,
-  // TicTac.Empty,
-  // TicTac.Cross,
-  // TicTac.Empty,
-  // TicTac.Zero,
-  // TicTac.Zero
 ];
-
-function emptyIndices() {
-  return areaMockData
-    .map((item, index) => {
-      if (!Boolean(item)) {
-        return index;
-      }
-
-      return undefined;
-    })
-    .filter(Boolean);
-}
-
-function winner() {
-  if (checkTicTacCeilsByName(areaMockData, "Cross")) {
-    return { score: -10 };
-  }
-
-  if (checkTicTacCeilsByName(areaMockData, "Zero")) {
-    return { score: 10 };
-  }
-
-  if (areaMockData.every((ceil) => Boolean(ceil))) {
-    return { score: 0 };
-  }
-}
-
-function minimax() {
-  //доступные клетки
-  const availSpots = emptyIndices();
-
-  const moves = [];
-}
 
 export function getFreeIndexByArray(arr: TicTac[]): number {
   const maxIndex = arr.length;
@@ -120,4 +85,36 @@ export function delayWithForward<T>({
   forward({ from: delayed, to });
 
   return event;
+}
+
+export function updateSceneListener(
+  state: TicTac[],
+  changeGameStatus: Event<Game>
+) {
+  if (checkTicTacCeilsByName(state, "Cross")) {
+    changeGameStatus({
+      game: GameStatus.Finished,
+      vinner: TicTac.Cross,
+    });
+
+    return state;
+  }
+
+  if (checkTicTacCeilsByName(state, "Zero")) {
+    changeGameStatus({
+      game: GameStatus.Finished,
+      vinner: TicTac.Zero,
+    });
+
+    return state;
+  }
+
+  if (state.every((ceil) => Boolean(ceil))) {
+    changeGameStatus({
+      game: GameStatus.Finished,
+      vinner: TicTac.Empty,
+    });
+
+    return state;
+  }
 }

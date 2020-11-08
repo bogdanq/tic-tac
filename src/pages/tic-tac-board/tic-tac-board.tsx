@@ -2,26 +2,44 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { GameStatus, TicTac } from "../../common/types";
-import { GameResultModal, handleSceneClick } from "../../features/tic-tac";
+import {
+  GameResultModal,
+  handleSceneClick,
+  addAiToScene,
+} from "../../features/tic-tac";
 import { usePageState } from "./hooks/use-page-state";
 
 export function TicTacBoard() {
-  const { scene, currentStep, gameStatus } = usePageState();
+  const { scene, hasAiInGame, gameStatus, currenUser, users } = usePageState();
 
   const isVisible = gameStatus.game === GameStatus.Finished;
 
   return (
     <div className="App">
       <h1>Крестики нолики</h1>
+      <div>
+        <span>Играть с ботом</span>
+        <input
+          type="checkbox"
+          checked={hasAiInGame}
+          onChange={({ target }) => {
+            addAiToScene(target.checked);
+          }}
+        />
+        {users.map((user) => (
+          <p key={user.name}>{user.name}</p>
+        ))}
+      </div>
       <h2>
-        Текущий ход: <span>{currentStep}</span>
+        Текущий ход:
+        <span>{currenUser?.name}</span>
       </h2>
       <Grid>
         {scene.map((ceil, index) => (
           <Ceil
             key={index}
             onClick={() => {
-              if (!ceil && currentStep !== TicTac.Zero) {
+              if (!ceil && !currenUser?.ai) {
                 handleSceneClick(index);
               }
             }}

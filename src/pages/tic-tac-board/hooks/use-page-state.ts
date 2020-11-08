@@ -5,15 +5,21 @@ import {
   $currentStep,
   $gameStatus,
   $scene,
+  $currenUser,
+  $hasAiInGame,
+  $users,
 } from "../../../features/tic-tac/model";
 
-export function usePageState() {
-  const combinedStore = combine({
-    scene: $scene,
-    currentStep: $currentStep,
-    gameStatus: $gameStatus,
-  });
+const combinedStore = combine({
+  scene: $scene,
+  currentStep: $currentStep,
+  gameStatus: $gameStatus,
+  currenUser: $currenUser,
+  hasAiInGame: $hasAiInGame,
+  users: $users,
+});
 
+export function usePageState() {
   const store = useStore(combinedStore);
 
   return store;
