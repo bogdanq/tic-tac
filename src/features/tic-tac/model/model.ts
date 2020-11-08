@@ -1,34 +1,66 @@
 import { createStore, createEvent, sample, guard, combine } from "effector";
 
-import { GameStatus, TicTac, Game } from "../../../common/types";
+import { GameStatus, TicTac, Game, User } from "../../../common/types";
 import {
-  checkTicTacCeilsByName,
   areaMockData,
   getFreeIndexByArray,
   delayWithForward,
+  updateSceneListener,
+  mockUsers,
+  mockAi,
 } from "../../../common/utils";
 
 export const handleSceneClick = createEvent<number>("cross or zero move");
+
+export const addAiToScene = createEvent<boolean>();
+
+export const resetGame = createEvent("reset game");
+
+export const updateGameStatus = createEvent<Game>();
 
 const handleSceneClickByAi = delayWithForward<number>({
   to: handleSceneClick,
   timeout: 1000,
 });
 
-export const resetGame = createEvent("reset game");
-
-export const checkGameStatus = createEvent<Game>();
-
 export const $scene = createStore<TicTac[]>(areaMockData);
+
+export const $users = createStore<User[]>(mockUsers);
 
 export const $currentStep = createStore<TicTac>(TicTac.Cross);
 
+export const $hasAiInGame = $users.map((users) =>
+  Boolean(users.find((user) => user.ai))
+);
+
 export const $gameStatus = createStore<Game>({
-  game: GameStatus.Pending,
+  game: GameStatus.Start,
   vinner: null,
 });
 
-const sceneHasChange = sample({
+export const $currenUser = combine($users, $currentStep).map(([users, step]) =>
+  users.find((user) => user.type === step)
+);
+
+sample({
+  source: addAiToScene,
+  clock: guard({
+    source: addAiToScene,
+    filter: $gameStatus.map(({ game }) => game === GameStatus.Start),
+  }),
+  fn: (checked) => {
+    if (checked) {
+      const [user] = mockUsers;
+
+      return [user, mockAi];
+    }
+
+    return mockUsers;
+  },
+  target: $users,
+});
+
+const sceneWasChange = sample({
   source: combine($currentStep, $scene),
   clock: handleSceneClick,
   fn: ([step, scene], index) => {
@@ -44,15 +76,15 @@ const sceneHasChange = sample({
   target: $scene,
 });
 
-const stepCanChange = guard({
-  source: sceneHasChange,
+const changeActiveUser = guard({
+  source: sceneWasChange,
   filter: $gameStatus.map(({ game }) => game === GameStatus.Pending),
 });
 
 guard({
   source: $scene,
-  filter: combine($currentStep, $gameStatus).map(([step, status]) => {
-    return step === TicTac.Zero && status.game === GameStatus.Pending;
+  filter: combine($gameStatus, $currenUser).map(([status, user]) => {
+    return status.game === GameStatus.Pending && Boolean(user?.ai);
   }),
   // @TODO пофиксить тип
   // @ts-ignore
@@ -61,10 +93,22 @@ guard({
   }),
 });
 
-$gameStatus.on(checkGameStatus, (_, params) => params).reset(resetGame);
+$gameStatus
+  .on(updateGameStatus, (_, params) => params)
+  .on(handleSceneClick, (state) => {
+    if (state.game !== GameStatus.Pending) {
+      return {
+        game: GameStatus.Pending,
+        vinner: null,
+      };
+    }
+
+    return state;
+  })
+  .reset(resetGame);
 
 $currentStep
-  .on(stepCanChange, (step) => {
+  .on(changeActiveUser, (step) => {
     if (step === TicTac.Cross) {
       return TicTac.Zero;
     }
@@ -74,32 +118,5 @@ $currentStep
   .reset(resetGame);
 
 $scene
-  .on(sceneHasChange, (state) => {
-    if (checkTicTacCeilsByName(state, "Cross")) {
-      checkGameStatus({
-        game: GameStatus.Finished,
-        vinner: TicTac.Cross,
-      });
-
-      return state;
-    }
-
-    if (checkTicTacCeilsByName(state, "Zero")) {
-      checkGameStatus({
-        game: GameStatus.Finished,
-        vinner: TicTac.Zero,
-      });
-
-      return state;
-    }
-
-    if (state.every((ceil) => Boolean(ceil))) {
-      checkGameStatus({
-        game: GameStatus.Finished,
-        vinner: TicTac.Empty,
-      });
-
-      return state;
-    }
-  })
+  .on(sceneWasChange, (scene) => updateSceneListener(scene, updateGameStatus))
   .reset(resetGame);
