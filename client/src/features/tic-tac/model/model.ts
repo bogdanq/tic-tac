@@ -7,12 +7,10 @@ import {
   delayWithForward,
   updateSceneListener,
   mockUsers,
-  mockAi,
 } from "../../../common/utils";
+import { addAiToUserList } from "./ai";
 
 export const handleSceneClick = createEvent<number>("cross or zero move");
-
-export const addAiToScene = createEvent<boolean>();
 
 export const resetGame = createEvent("reset game");
 
@@ -42,21 +40,8 @@ export const $currenUser = combine($users, $currentStep).map(([users, step]) =>
   users.find((user) => user.type === step)
 );
 
-sample({
-  source: addAiToScene,
-  clock: guard({
-    source: addAiToScene,
-    filter: $gameStatus.map(({ game }) => game === GameStatus.Start),
-  }),
-  fn: (checked) => {
-    if (checked) {
-      const [user] = mockUsers;
-
-      return [user, mockAi];
-    }
-
-    return mockUsers;
-  },
+addAiToUserList({
+  filter: $gameStatus.map(({ game }) => game === GameStatus.Start),
   target: $users,
 });
 
