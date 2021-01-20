@@ -4,7 +4,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import * as http from "http";
 import * as WebSocket from "ws";
+
 import { getSessionFromBd } from "../controllers";
+import { Request } from "../ws";
 
 export function prepareServerConfig() {
   const app = express();
@@ -17,7 +19,7 @@ export function prepareServerConfig() {
       info: {
         origin: string;
         secure: boolean;
-        req: http.IncomingMessage & { data: any };
+        req: Request;
       },
       callback: (
         res: boolean,

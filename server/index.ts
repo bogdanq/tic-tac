@@ -1,14 +1,18 @@
 import dotenv from "dotenv";
+import { createUser, userLogin } from "./controllers/user";
 
 import { mongoConnect } from "./utils/mongo-connect";
 import { prepareServerConfig } from "./utils/prepare-server";
-import { wsParser, errors, Type, ExtWebSocket, Request } from "./ws";
+import { wsParser, errors, Type, ExtWebSocket, Request, Paths } from "./ws";
 
 dotenv.config();
 
 mongoConnect();
 
-const { server, wss } = prepareServerConfig();
+const { server, wss, app } = prepareServerConfig();
+
+app.post(`/${Paths.userCreate}`, createUser);
+app.post(`/${Paths.userLogin}`, userLogin);
 
 wss.on("error", (ws: ExtWebSocket) => {
   ws.send(JSON.stringify(errors["500"]));

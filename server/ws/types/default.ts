@@ -9,16 +9,15 @@ export type Session = {
 
 export enum Paths {
   getUsers = "get.users",
+  userCreate = "user.create",
+  userLogin = "user.login",
 }
 
 export enum Type {
+  default = "",
   broadcast = "broadcast",
 }
 
-export type ExtWebSocket = WebSocket & { isAlive: boolean };
+export type ErrorResponse = { method: Paths; payload: null; error: string };
 
-export type GetUsersParams = {
-  method: Paths.getUsers;
-  type: Type.broadcast;
-  payload: {};
-};
+export type ExtWebSocket = WebSocket & { isAlive: boolean };

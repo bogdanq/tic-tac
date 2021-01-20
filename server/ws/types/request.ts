@@ -1,6 +1,13 @@
-import * as http from "http";
-import { GetUsersParams, Session } from "./default";
+import * as express from "express";
+import { Paths, Session, Type } from "./default";
+import { CreateUsersParams } from "./user";
 
-export type WsRequest = GetUsersParams;
+export type DefaultRequest = {
+  method: Paths;
+  type: Type;
+  payload: void;
+};
 
-export type Request = http.IncomingMessage & { data: { session: Session } };
+export type WsRequest = CreateUsersParams | DefaultRequest;
+
+export type Request = express.Request & { data: { session: Session } };
