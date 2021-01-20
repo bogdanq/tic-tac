@@ -8,11 +8,11 @@
 
 Запускает сервер по порту `localhost:3000`
 
-### API
+# API
 
 ## users
 
-# user.create
+### user.create
 
 `payload` представлен json-объектом со следующими полями:
 
@@ -51,7 +51,7 @@
 }
 ```
 
-# user.login
+### user.login
 
 `payload` представлен json-объектом со следующими полями:
 
