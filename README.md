@@ -1,46 +1,99 @@
-# Getting Started with Create React App
+# Начало работы
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### `yarn tsc:watch`
 
-## Available Scripts
+Запускает компилятор ts в режиме наблюдения за файлами и делает сборку в папку `build`
 
-In the project directory, you can run:
+### `yarn dev`
 
-### `yarn start`
+Запускает сервер по порту `localhost:3000`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### API
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## users
 
-### `yarn test`
+# user.create
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`payload` представлен json-объектом со следующими полями:
 
-### `yarn build`
+| name     | type   | required | description         |
+| -------- | ------ | -------- | ------------------- |
+| email    | string | y        | почта пользователя  |
+| name     | string | y        | имя пользователя    |
+| password | string | y        | пароль пользователя |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Пример запроса:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+{
+  "type": "",
+  "method": "user.create",
+  "payload": {
+    "email": "bshelomanov@gmail.com",
+    "name": "Bogdan",
+    "password": "1111111",
+  }
+}
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Пример ответа:
 
-### `yarn eject`
+```js
+{
+  "type": "",
+  "method": "user.create",
+  "payload": {
+    "email": "bshelomanov@gmail.com",
+    "name": "Bogdan",
+    "token": "some token",
+    "_id": "UHJKMwqe123",
+  }
+}
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# user.login
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+`payload` представлен json-объектом со следующими полями:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+| name     | type   | required | description         |
+| -------- | ------ | -------- | ------------------- |
+| email    | string | y        | почта пользователя  |
+| password | string | y        | пароль пользователя |
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Пример запроса:
 
-## Learn More
+```js
+{
+  "type": "",
+  "method": "user.login",
+  "payload": {
+    "email": "bshelomanov@gmail.com",
+    "password": "1111111",
+  }
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Пример ответа:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+{
+  "type": "",
+  "method": "user.login",
+  "payload": {
+    "email": "bshelomanov@gmail.com",
+    "name": "Bogdan",
+    "token": "some token",
+    "_id": "UHJKMwqe123",
+  }
+}
+```
+
+## Дефолтный ответ с ошибкой
+
+```js
+{
+  "method": "user.login",
+  "payload": null,
+  "error": ["some error string"]
+}
+```

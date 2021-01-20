@@ -45,7 +45,7 @@ export async function createUser(
     const error: ErrorResponse = {
       method: Paths.userCreate,
       payload: null,
-      error: "Произошла ошибка при создании пользователя",
+      error: ["Произошла ошибка при создании пользователя"],
     };
 
     response.status(404).send(JSON.stringify(error));
@@ -61,7 +61,7 @@ export async function userLogin(
   const error: ErrorResponse = {
     method: Paths.userLogin,
     payload: null,
-    error: "Не правильный логин или пароль",
+    error: ["Не правильный логин или пароль"],
   };
 
   try {

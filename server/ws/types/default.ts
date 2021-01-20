@@ -18,6 +18,6 @@ export enum Type {
   broadcast = "broadcast",
 }
 
-export type ErrorResponse = { method: Paths; payload: null; error: string };
+export type ErrorResponse = { method: Paths; payload: null; error: string[] };
 
 export type ExtWebSocket = WebSocket & { isAlive: boolean };
