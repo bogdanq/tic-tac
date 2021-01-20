@@ -46,6 +46,7 @@ export async function createUser(
       method: Paths.userCreate,
       payload: null,
       error: ["Произошла ошибка при создании пользователя"],
+      code: 404,
     };
 
     response.status(404).send(JSON.stringify(error));
@@ -62,6 +63,7 @@ export async function userLogin(
     method: Paths.userLogin,
     payload: null,
     error: ["Не правильный логин или пароль"],
+    code: 404,
   };
 
   try {

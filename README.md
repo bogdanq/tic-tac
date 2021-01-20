@@ -94,6 +94,7 @@
 {
   "method": "user.login",
   "payload": null,
-  "error": ["some error string"]
+  "error": ["some error string"],
+  "code": 400,
 }
 ```
