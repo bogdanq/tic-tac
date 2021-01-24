@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Paths, Type } from "./default";
+import { Methods, Type } from "./default";
 
 export enum UserStatus {
   online = "online",
@@ -7,13 +7,13 @@ export enum UserStatus {
 }
 
 export type ShortUser = {
-  _id: string;
+  id: string;
   email: string;
   name: string;
 };
 
 export type User = {
-  _id: string;
+  id: string;
   email: string;
   name: string;
   password: string;
@@ -24,25 +24,25 @@ export type User = {
 } & Document;
 
 export type CreateUsersParams = {
-  method: Paths.userCreate;
+  method: Methods.userCreate;
   type: Type.default;
   payload: Pick<User, "email" | "name" | "password">;
 };
 
 export type CreateUsersResponse = {
-  method: Paths.userCreate;
+  method: Methods.userCreate;
   type: Type.default;
   payload: ShortUser & { token: string };
 };
 
 export type LoginUsersParams = {
-  method: Paths.userLogin;
+  method: Methods.userLogin;
   type: Type.default;
   payload: Pick<User, "email" | "password">;
 };
 
 export type LoginUsersResponse = {
-  method: Paths.userLogin;
+  method: Methods.userLogin;
   type: Type.default;
   payload: ShortUser & { token: string };
 };

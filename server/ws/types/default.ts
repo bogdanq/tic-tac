@@ -1,28 +1,60 @@
 import * as WebSocket from "ws";
 import { Document } from "mongoose";
+import { GetMessagesResponse, SendMessagesResponse } from "./chat";
 
 export type Session = {
-  _id: string;
   token: string;
   userEmail: string;
 } & Document;
 
-export enum Paths {
+export enum Methods {
   getUsers = "get.users",
   userCreate = "user.create",
   userLogin = "user.login",
+
+  chatMessages = "chat.messages",
+  chatSendMessage = "chat.send.message",
+}
+
+export enum SubscriptionMethods {
+  "chat.messages" = Methods.chatMessages,
 }
 
 export enum Type {
-  default = "",
-  broadcast = "broadcast",
+  default = "default",
+  event = "event",
+  unsubscribe = "unsubscribe",
 }
 
-export type ErrorResponse = {
-  method?: Paths;
-  payload?: null;
-  error: string[];
+export type CommonResponse = {
+  isSuccess: boolean;
+  reqId: string;
   code: number;
 };
+
+export type Response = {
+  method: Methods;
+  type: Type;
+  payload: {
+    payload: object;
+    params: object | null;
+  } | null;
+  isSuccess: boolean;
+  reqId: string;
+  code: number;
+};
+
+export type DefaultEventResponse = Omit<Response, "reqId">;
+
+export type wsResponse =
+  | ErrorResponse
+  | GetMessagesResponse
+  | SendMessagesResponse
+  | DefaultEventResponse;
+
+export type ErrorResponse = {
+  payload: null;
+  error: string;
+} & Omit<Response, "payload" | "type">;
 
 export type ExtWebSocket = WebSocket & { isAlive: boolean };

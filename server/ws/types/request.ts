@@ -1,13 +1,16 @@
 import * as express from "express";
-import { Paths, Session, Type } from "./default";
-import { CreateUsersParams } from "./user";
+import { Methods, Session } from "./default";
+// import { GetMessagesParams, SendMessagesParams } from "./chat";
 
 export type DefaultRequest = {
-  method: Paths;
-  type: Type;
-  payload: void;
+  method: Methods;
+  roomId?: Methods;
+  payload: object | null;
+  reqId: string;
+  unsubscribe?: boolean;
 };
 
-export type WsRequest = CreateUsersParams | DefaultRequest;
+export type WsRequest = DefaultRequest;
+// export type WsRequest = (GetMessagesParams | SendMessagesParams) &
 
 export type Request = express.Request & { data: { session: Session } };

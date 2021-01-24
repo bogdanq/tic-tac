@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import { ShortUser } from "../ws";
+import { User } from "../ws";
 
-export function makeAccessToken(userEntity: ShortUser): Promise<string> {
+export function makeAccessToken(userEntity: User): Promise<string> {
   return new Promise((rs, rj) => {
     return jwt.sign(
       {
@@ -12,7 +12,7 @@ export function makeAccessToken(userEntity: ShortUser): Promise<string> {
       "TOKEN_ACCESS_SECRET",
       {
         algorithm: "HS512",
-        subject: String(userEntity._id),
+        subject: String(userEntity.id),
       },
       (error, token) => {
         if (error) {

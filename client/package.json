@@ -12,6 +12,7 @@
     "@types/react-dom": "^16.9.8",
     "effector": "^21.6.2",
     "effector-react": "^21.0.8",
+    "nanoid": "^3.1.20",
     "patronum": "^0.111.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react-modal": "^3.10.6",
-    "@types/styled-components": "^5.1.4"
+    "@types/styled-components": "^5.1.4",
+    "mongoose": "^5.11.13"
   }
 }

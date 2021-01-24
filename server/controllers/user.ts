@@ -6,7 +6,7 @@ import {
   UserStatus,
   Request,
   LoginUsersResponse,
-  Paths,
+  Methods,
   Type,
   ErrorResponse,
   CreateUsersResponse,
@@ -35,21 +35,22 @@ export async function createUser(
     user.save();
 
     const result: CreateUsersResponse = {
-      method: Paths.userCreate,
+      method: Methods.userCreate,
       type: Type.default,
-      payload: { email, name, _id: user._id, token },
+      payload: { email, name, id: user._id, token },
     };
 
-    response.status(200).send(JSON.stringify(result));
+    response.status(200).send(result);
   } catch ({ message }) {
-    const error: ErrorResponse = {
-      method: Paths.userCreate,
+    const error: Omit<ErrorResponse, "reqId"> = {
+      method: Methods.userCreate,
       payload: null,
-      error: ["Произошла ошибка при создании пользователя"],
+      error: "Произошла ошибка при создании пользователя",
       code: 404,
+      isSuccess: false,
     };
 
-    response.status(404).send(JSON.stringify(error));
+    response.status(404).send(error);
   }
 }
 
@@ -59,11 +60,12 @@ export async function userLogin(
 ) {
   const { email, password } = request.body;
 
-  const error: ErrorResponse = {
-    method: Paths.userLogin,
+  const error: Omit<ErrorResponse, "reqId"> = {
+    method: Methods.userLogin,
     payload: null,
-    error: ["Не правильный логин или пароль"],
+    error: "Не правильный логин или пароль",
     code: 404,
+    isSuccess: false,
   };
 
   try {
@@ -73,28 +75,26 @@ export async function userLogin(
       const token = await createSession(user);
 
       const result: LoginUsersResponse = {
-        method: Paths.userLogin,
+        method: Methods.userLogin,
         type: Type.default,
         payload: {
           email: user.email,
           name: user.name,
-          _id: user.id,
+          id: user._id,
           token,
         },
       };
 
-      response.status(200).send(JSON.stringify(result));
+      response.status(200).send(result);
 
       return;
     }
 
-    response.status(404).send(JSON.stringify(error));
+    response.status(404).send(error);
   } catch ({ message }) {
-    response.status(404).send(
-      JSON.stringify({
-        ...error,
-        error: "Произошла ошибка при проверке пользователя",
-      })
-    );
+    response.status(404).send({
+      ...error,
+      error: "Произошла ошибка при проверке пользователя",
+    });
   }
 }
