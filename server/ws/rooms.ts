@@ -1,4 +1,4 @@
-import { Session, ExtWebSocket } from "../ws";
+import { Session, ExtWebSocket } from "./types";
 
 type Room = { [key: string]: Array<{ id: Session["id"]; ws: ExtWebSocket }> };
 
@@ -32,10 +32,9 @@ class Rooms {
   }
 
   public remove(roomId: string, socketId: string) {
-    this.rooms[roomId] = (this.rooms[roomId] || []).filter((item) => {
-      console.log(item.id, socketId);
-      return item.id !== socketId;
-    });
+    this.rooms[roomId] = (this.rooms[roomId] || []).filter(
+      (item) => item.id !== socketId
+    );
 
     return this;
   }

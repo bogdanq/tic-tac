@@ -1,25 +1,17 @@
 import dotenv from "dotenv";
-import { nanoid } from "nanoid";
 
-import { getMessages, sendMessage } from "./controllers";
-import { createUser, userLogin } from "./controllers/user";
+import { createUser, userLogin } from "./controllers";
 
 import { mongoConnect } from "./utils/mongo-connect";
 import { prepareServerConfig } from "./utils/prepare-server";
-import { rooms } from "./utils/rooms";
 import {
   wsParser,
   errors,
-  Type,
   ExtWebSocket,
   Request,
   Methods,
-  SendMessagesResponse,
-  SubscriptionMethods,
-  WsRequest,
-  wsResponse,
-  GetMessagesResponse,
-  Session,
+  subscribe,
+  broadcast,
 } from "./ws";
 
 dotenv.config();
@@ -36,9 +28,8 @@ wss.on("error", (ws: ExtWebSocket) => {
 });
 
 wss.on("connection", (ws: ExtWebSocket, request: Request) => {
-  const socketId = nanoid();
   const {
-    data: { session },
+    data: { router },
   } = request;
 
   ws.on("message", async (message: string) => {
@@ -48,119 +39,18 @@ wss.on("connection", (ws: ExtWebSocket, request: Request) => {
 
     if (!parsedMessage) {
       ws.send(JSON.stringify(errors["404"]));
+
+      return;
     }
 
-    if (SubscriptionMethods[parsedMessage.method]) {
-      const roomId = parsedMessage.method;
-      console.log("[socket] subscription type message =>", roomId);
+    subscribe(parsedMessage, request, ws);
 
-      rooms.add({ socketId, ws }, roomId);
-    }
+    const response = await router.routeHandler(parsedMessage);
 
-    const result = await completeWorkFromRoutes(
-      parsedMessage,
-      session,
-      socketId
-    );
+    broadcast(parsedMessage, response, ws);
 
-    if (parsedMessage.roomId) {
-      const clients = rooms.clients(parsedMessage.roomId);
-
-      clients.forEach((client) => {
-        if (client.ws !== ws) {
-          client.ws.send(JSON.stringify({ ...result, type: Type.event }));
-        }
-      });
-    }
-
-    const resultByString = JSON.stringify(result);
-
-    ws.send(resultByString);
+    ws.send(JSON.stringify(response));
   });
 });
-
-async function completeWorkFromRoutes(
-  parsedMessage: WsRequest,
-  session: Session,
-  socketId: string
-): Promise<wsResponse> {
-  if (parsedMessage.unsubscribe) {
-    console.log("socketId", socketId);
-    return unsibscribe(parsedMessage, socketId);
-  }
-
-  if (parsedMessage.method === Methods.chatMessages) {
-    return getChatMessages(parsedMessage);
-  }
-
-  if (parsedMessage.method === Methods.chatSendMessage) {
-    return sendChatMessage(parsedMessage, session);
-  }
-
-  return {
-    method: parsedMessage.method,
-    reqId: parsedMessage.reqId,
-    code: 404,
-    isSuccess: false,
-    error: "Нет такого роута",
-    payload: null,
-  };
-}
-
-function unsibscribe(parsedMessage: WsRequest, socketId: string) {
-  const method = parsedMessage.method;
-
-  rooms.remove(method, socketId);
-
-  return {
-    method,
-    type: Type.default,
-    payload: null,
-    reqId: parsedMessage.reqId,
-    code: 200,
-    isSuccess: true,
-  };
-}
-
-async function getChatMessages(
-  parsedMessage: WsRequest
-): Promise<GetMessagesResponse> {
-  const messages = await getMessages();
-
-  return {
-    method: Methods.chatMessages,
-    type: Type.default,
-    payload: {
-      payload: { messages },
-      params: null,
-    },
-    reqId: parsedMessage.reqId,
-    code: 200,
-    isSuccess: true,
-  };
-}
-
-async function sendChatMessage(
-  parsedMessage: WsRequest,
-  session: Session
-): Promise<SendMessagesResponse> {
-  const message = await sendMessage({
-    userId: session.id,
-    // @ts-ignore
-    message: parsedMessage.payload.message || "",
-  });
-
-  return {
-    method: Methods.chatSendMessage,
-    type: Type.default,
-    payload: {
-      payload: { message },
-      params: null,
-    },
-    reqId: parsedMessage.reqId,
-    code: 200,
-    isSuccess: true,
-  };
-}
 
 server.listen("3000", () => console.log("3000"));

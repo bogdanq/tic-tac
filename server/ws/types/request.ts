@@ -1,4 +1,5 @@
 import * as express from "express";
+import { WsRouter } from "../router";
 import { Methods, Session } from "./default";
 // import { GetMessagesParams, SendMessagesParams } from "./chat";
 
@@ -13,4 +14,6 @@ export type DefaultRequest = {
 export type WsRequest = DefaultRequest;
 // export type WsRequest = (GetMessagesParams | SendMessagesParams) &
 
-export type Request = express.Request & { data: { session: Session } };
+export type Request = express.Request & {
+  data: { session: Session; router: WsRouter; socketId: string };
+};

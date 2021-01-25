@@ -46,7 +46,7 @@ export type Response = {
 
 export type DefaultEventResponse = Omit<Response, "reqId">;
 
-export type wsResponse =
+export type WsResponse =
   | ErrorResponse
   | GetMessagesResponse
   | SendMessagesResponse

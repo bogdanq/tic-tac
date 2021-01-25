@@ -7,6 +7,7 @@ import * as WebSocket from "ws";
 
 import { getSessionFromBd } from "../controllers";
 import { Request } from "../ws";
+import { createRouter } from "./create-router";
 
 export function prepareServerConfig() {
   const app = express();
@@ -31,7 +32,9 @@ export function prepareServerConfig() {
       const session = await getSessionFromBd(info.req);
 
       if (session) {
-        info.req.data = { session };
+        const router = createRouter(session);
+
+        info.req.data = { session, router, socketId: router.socketId };
 
         return callback(true);
       }
