@@ -10,6 +10,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "axios": "^0.21.1",
     "effector": "^21.6.2",
     "effector-react": "^21.0.8",
     "nanoid": "^3.1.20",
