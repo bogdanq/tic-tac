@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Methods, Type, CommonResponse } from "./ws";
+import { Methods, Type, CommonResponse, SubscriptionMethods } from "./ws";
 
 export type Chat = {
   userId: string;
@@ -13,9 +13,11 @@ export type GetMessagesResponse = {
 } & CommonResponse;
 
 export type GetMessagesParams = {
-  method: Methods.chatMessages;
+  method: SubscriptionMethods.chatMessages;
   payload: null;
   reqId: string;
+  roomId?: SubscriptionMethods;
+  unsubscribe?: boolean;
 };
 
 export type SendMessagesResponse = {
@@ -31,4 +33,6 @@ export type SendMessagesParams = {
   method: Methods.chatSendMessage;
   payload: { message: string };
   reqId: string;
+  roomId: SubscriptionMethods;
+  unsubscribe?: boolean;
 };

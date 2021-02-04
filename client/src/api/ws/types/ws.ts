@@ -14,17 +14,16 @@ export enum Methods {
   getUsers = "get.users",
   userCreate = "user.create",
   userLogin = "user.login",
-
   chatMessages = "chat.messages",
   chatSendMessage = "chat.send.message",
 }
 
 export enum SubscriptionMethods {
-  "chat.send.message" = Methods.chatSendMessage,
+  chatMessages = "chat.messages",
 }
 
 export type DefaultResponse = {
-  method: Methods;
+  method: Methods | SubscriptionMethods;
   type: Type;
   payload: {
     payload: any;
@@ -56,14 +55,7 @@ export type Response = {
 
 export type DefaultEventResponse = Omit<Response, "reqId">;
 
-export type wsRequest =
-  | SendMessagesParams
-  | GetMessagesParams
-  | {
-      method: Methods;
-      payload: null;
-      reqId: string;
-    };
+export type wsRequest = SendMessagesParams | GetMessagesParams;
 
 export type ErrorResponse = {
   payload: null;

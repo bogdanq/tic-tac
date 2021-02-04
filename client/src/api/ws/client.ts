@@ -1,4 +1,4 @@
-import { createEffect, createEvent, guard, Effect, Event } from "effector";
+import { createEffect, createEvent, guard } from "effector";
 import { nanoid } from "nanoid";
 import { DefaultResponse, wsRequest, Type, Methods } from "./types";
 
@@ -47,6 +47,8 @@ onMessage
   .watch((data) => {
     const { reqId, isSuccess, type } = data;
 
+    console.log("type", data);
+
     const request = awaitingMap.get(reqId);
 
     if (request) {
@@ -85,11 +87,17 @@ onMessage
 export const send = createEffect<Omit<wsRequest, "reqId">, DefaultResponse>(
   "send ws",
   {
-    handler({ payload, method }) {
+    handler({ payload, method, roomId, unsubscribe }) {
       const reqId = nanoid();
 
       // @ts-ignore
-      const request: wsRequest = { payload, method, reqId };
+      const request: wsRequest = {
+        payload,
+        method,
+        reqId,
+        roomId,
+        unsubscribe,
+      };
 
       socket.send(JSON.stringify(request));
 
@@ -103,28 +111,6 @@ export const send = createEffect<Omit<wsRequest, "reqId">, DefaultResponse>(
     },
   }
 );
-export function fetchingWatch<Params, Response>(
-  cb: (params: Response) => void,
-  {
-    fx,
-    subscribe,
-  }: { fx: Effect<Params, Response>; subscribe: Event<Response> }
-) {
-  const unbind = fx.done.watch(({ result }) => {
-    console.log("result fx", result);
-    cb(result);
-  });
-
-  const unbind2 = subscribe.watch((s) => {
-    console.log("result subscribe", s);
-    cb(s);
-  });
-
-  return () => {
-    unbind();
-    unbind2();
-  };
-}
 
 export function connect(cb: any) {
   try {
