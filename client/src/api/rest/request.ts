@@ -1,21 +1,23 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { getCookie } from "../../features/session/utils";
 import { withLogger } from "./logger";
 
 class Request {
   private token: string | null;
   private request: AxiosInstance;
 
-  constructor() {
-    this.token = null;
+  constructor(token: string) {
+    this.token = token || null;
     this.request = withLogger(
       axios.create({
         baseURL: process.env.REACT_APP_BASE_URL,
+        timeout: 1000,
       })
     );
   }
 
   private requestWithToken = (token: string | null) => ({
-    headers: { "X-Token": token },
+    headers: { "x-token": token },
   });
 
   setToken = (token: string) => {
@@ -64,4 +66,4 @@ class Request {
   };
 }
 
-export const request = new Request();
+export const request = new Request(getCookie("x-token"));

@@ -8,9 +8,9 @@ export type Session = {
 } & Document;
 
 export enum Methods {
-  getUsers = "get.users",
-  userCreate = "user.create",
-  userLogin = "user.login",
+  getSession = "session.get",
+  createSession = "session.create",
+  entrySession = "session.entry",
 
   chatMessages = "chat.messages",
   chatSendMessage = "chat.send.message",

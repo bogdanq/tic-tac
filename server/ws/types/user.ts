@@ -24,25 +24,31 @@ export type User = {
 } & Document;
 
 export type CreateUsersParams = {
-  method: Methods.userCreate;
+  method: Methods.createSession;
   type: Type.default;
   payload: Pick<User, "email" | "name" | "password">;
 };
 
 export type CreateUsersResponse = {
-  method: Methods.userCreate;
+  method: Methods.createSession;
   type: Type.default;
   payload: ShortUser & { token: string };
 };
 
 export type LoginUsersParams = {
-  method: Methods.userLogin;
+  method: Methods.entrySession;
   type: Type.default;
   payload: Pick<User, "email" | "password">;
 };
 
 export type LoginUsersResponse = {
-  method: Methods.userLogin;
+  method: Methods.entrySession;
   type: Type.default;
   payload: ShortUser & { token: string };
+};
+
+export type GetUserResponse = {
+  method: Methods.getSession;
+  type: Type.default;
+  payload: User;
 };

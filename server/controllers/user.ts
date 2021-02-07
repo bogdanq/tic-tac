@@ -10,8 +10,9 @@ import {
   Type,
   ErrorResponse,
   CreateUsersResponse,
+  GetUserResponse,
 } from "../ws/types";
-import { createSession } from "./session";
+import { createSession, getSessionFromBd } from "./session";
 
 export async function createUser(
   request: Request & User,
@@ -32,10 +33,10 @@ export async function createUser(
 
     const token = await createSession(user);
 
-    user.save();
+    await user.save();
 
     const result: CreateUsersResponse = {
-      method: Methods.userCreate,
+      method: Methods.createSession,
       type: Type.default,
       payload: { email, name, id: user._id, token },
     };
@@ -43,7 +44,7 @@ export async function createUser(
     response.status(200).send(result);
   } catch ({ message }) {
     const error: Omit<ErrorResponse, "reqId"> = {
-      method: Methods.userCreate,
+      method: Methods.createSession,
       payload: null,
       error: "Произошла ошибка при создании пользователя",
       code: 404,
@@ -61,7 +62,7 @@ export async function userLogin(
   const { email, password } = request.body;
 
   const error: Omit<ErrorResponse, "reqId"> = {
-    method: Methods.userLogin,
+    method: Methods.entrySession,
     payload: null,
     error: "Не правильный логин или пароль",
     code: 404,
@@ -75,7 +76,7 @@ export async function userLogin(
       const token = await createSession(user);
 
       const result: LoginUsersResponse = {
-        method: Methods.userLogin,
+        method: Methods.entrySession,
         type: Type.default,
         payload: {
           email: user.email,
@@ -96,5 +97,54 @@ export async function userLogin(
       ...error,
       error: "Произошла ошибка при проверке пользователя",
     });
+  }
+}
+
+export async function getUserFromSession(
+  request: Request,
+  response?: express.Response
+): Promise<User> {
+  const error: Omit<ErrorResponse, "reqId"> = {
+    method: Methods.getSession,
+    payload: null,
+    error: "Произошла ошибка при проверки пользователя",
+    code: 404,
+    isSuccess: false,
+  };
+
+  try {
+    const session = await getSessionFromBd(request);
+
+    const email = session.userEmail || null;
+
+    if (!email) {
+      response.status(404).send({
+        ...error,
+        error: "Нет сессии",
+      });
+    }
+
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      response.status(404).send({
+        ...error,
+        error: "Нет пользователя",
+      });
+    }
+
+    const result: GetUserResponse = {
+      method: Methods.getSession,
+      type: Type.default,
+      payload: user,
+    };
+
+    response.status(200).send(result);
+
+    return user;
+  } catch {
+    response.status(404).send(error);
+
+    return null;
   }
 }

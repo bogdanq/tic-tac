@@ -10,16 +10,16 @@ import {
 } from "../../../../api/ws/types";
 import { fetchChatMessagesWs, sendChatMessagesWs } from "../../api";
 
-export const sendChatMessagesSubscribe = createEvent<
-  SendMessagesResponse["payload"]
->(Methods.chatSendMessage);
+export const sendChatMessage = createEvent<SendMessagesResponse["payload"]>(
+  Methods.chatSendMessage
+);
 
 export const fetchChatMessagesFx = createEffect<
   void,
   GetMessagesResponse["payload"]
 >(SubscriptionMethods.chatMessages).use(fetchChatMessagesWs);
 
-const unsubscribeChatMessagesFx = createEffect<
+export const unsubscribeChatMessagesFx = createEffect<
   boolean,
   GetMessagesResponse["payload"]
 >(SubscriptionMethods.chatMessages).use(fetchChatMessagesWs);
@@ -37,7 +37,7 @@ $messages
     ...state,
   ])
   .on(
-    merge([sendChatMessagesFx.doneData, sendChatMessagesSubscribe]),
+    merge([sendChatMessagesFx.doneData, sendChatMessage]),
     (state, { payload }) => [payload.message, ...state]
   );
 
@@ -46,7 +46,7 @@ export const fetchMessages = () => {
 
   subscribeEvent({
     method: Methods.chatSendMessage,
-    event: sendChatMessagesSubscribe,
+    event: sendChatMessage,
   });
 
   return () => {

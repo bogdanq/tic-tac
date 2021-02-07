@@ -1,5 +1,6 @@
 import { createEffect, createEvent, guard } from "effector";
 import { nanoid } from "nanoid";
+import { getCookie } from "../../features/session/utils";
 import { DefaultResponse, wsRequest, Type, Methods } from "./types";
 
 const wsURL = `ws://localhost:${process.env.REACT_APP_WS}`;
@@ -46,8 +47,6 @@ onMessage
   })
   .watch((data) => {
     const { reqId, isSuccess, type } = data;
-
-    console.log("type", data);
 
     const request = awaitingMap.get(reqId);
 
@@ -113,9 +112,11 @@ export const send = createEffect<Omit<wsRequest, "reqId">, DefaultResponse>(
 );
 
 export function connect(cb: any) {
+  const cookie = getCookie("x-token");
+
   try {
     console.info(`Try to connect on ${wsURL}`);
-    socket = new WebSocket(wsURL);
+    socket = new WebSocket(wsURL, [cookie]);
   } catch (e) {
     throw new Error(e.message);
   } finally {

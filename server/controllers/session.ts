@@ -5,11 +5,12 @@ import { Session, Request, User } from "../ws/types";
 export const getSessionFromBd = async (
   req: Request
 ): Promise<Session | null> => {
-  // const token = req.headers.authorization;
+  const token =
+    req.headers["sec-websocket-protocol"] || (req.headers["x-token"] as string);
 
   try {
     const session = await SessionModel.findOne({
-      token: "test",
+      token,
     });
 
     return session;

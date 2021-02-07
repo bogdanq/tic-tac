@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-import { createUser, userLogin } from "./controllers";
+import { createUser, getUserFromSession, userLogin } from "./controllers";
 
 import { mongoConnect } from "./utils/mongo-connect";
 import { prepareServerConfig } from "./utils/prepare-server";
@@ -20,8 +20,9 @@ mongoConnect();
 
 const { server, wss, app } = prepareServerConfig();
 
-app.post(`/${Methods.userCreate}`, createUser);
-app.post(`/${Methods.userLogin}`, userLogin);
+app.post(`/${Methods.createSession}`, createUser);
+app.post(`/${Methods.entrySession}`, userLogin);
+app.get(`/${Methods.getSession}`, getUserFromSession);
 
 wss.on("error", (ws: ExtWebSocket) => {
   ws.send(JSON.stringify(errors["500"]));
