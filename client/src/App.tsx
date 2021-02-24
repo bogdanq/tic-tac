@@ -1,17 +1,21 @@
 import React from "react";
-import Modal from "react-modal";
-// import { TicTacBoard } from "./pages/tic-tac-board/tic-tac-board";
+import { BrowserRouter, Switch } from "react-router-dom";
+import { useStore } from "effector-react";
 
-import { Chat } from "./features/chat";
-
-Modal.setAppElement("#root");
+import { useRouter } from "./features/routers";
+import { $session } from "./features/session";
+import { PageWrapper } from "./ui";
 
 export function App() {
-  return (
-    <>
-      <Chat />
+  const session = useStore($session);
 
-      {/* <TicTacBoard /> */}
-    </>
+  const routes = useRouter({ session });
+
+  return (
+    <PageWrapper>
+      <BrowserRouter>
+        <Switch>{routes}</Switch>
+      </BrowserRouter>
+    </PageWrapper>
   );
 }

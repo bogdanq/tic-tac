@@ -10,8 +10,9 @@ import {
 } from "effector";
 
 import { request } from "../../api/rest";
+import { Methods } from "../../api/ws/types";
+import { Session } from "../../common";
 import {
-  Session,
   CreateSessionParams,
   EntrySessionParams,
   GetUserResponse,
@@ -31,7 +32,7 @@ export const fetchSessionFx = createEffect<
   void,
   AxiosResponse<GetUserResponse>
 >().use(() => {
-  return request.get<GetUserResponse>("session.get", true);
+  return request.get<GetUserResponse>(Methods.getSession, true);
 });
 
 export const createUserFx = createEffect<
@@ -39,7 +40,7 @@ export const createUserFx = createEffect<
   AxiosResponse<CreateSessionResponse>
 >((params) => {
   return request.post<CreateSessionParams, CreateSessionResponse>(
-    "session.create",
+    Methods.createSession,
     params
   );
 });
@@ -49,12 +50,12 @@ export const loginFx = createEffect<
   AxiosResponse<EntrySessionResponse>
 >((params) => {
   return request.post<EntrySessionParams, EntrySessionResponse>(
-    "session.entry",
+    Methods.entrySession,
     params
   );
 });
 
-export const logOutFx = createEffect<void, null>((params) => {
+export const logOutFx = createEffect<void, null>(() => {
   return null;
 });
 

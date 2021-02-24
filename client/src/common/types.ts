@@ -20,3 +20,13 @@ export type User = {
   type: TicTac;
   ai: boolean;
 };
+
+export type Session = {
+  id: string;
+  email: string;
+  name: string;
+  password: string;
+  currentGameId: string;
+  friends: string[];
+  blockedUser: string[];
+};

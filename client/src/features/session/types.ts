@@ -1,14 +1,5 @@
 import { Methods, Type } from "../../api/ws/types";
-
-export type Session = {
-  id: string;
-  email: string;
-  name: string;
-  password: string;
-  currentGameId: string;
-  friends: string[];
-  blockedUser: string[];
-};
+import { Session } from "../../common";
 
 export type CreateSessionParams = {
   email: string;
