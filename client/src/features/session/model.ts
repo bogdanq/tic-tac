@@ -2,78 +2,83 @@ import { AxiosResponse } from "axios";
 import {
   createEffect,
   createStore,
-  combine,
   merge,
   createEvent,
   guard,
   forward,
 } from "effector";
 
-import { request } from "../../api/rest";
+import { ApiError, request } from "../../api/rest";
 import { Methods } from "../../api/ws/types";
-import { Session } from "../../common";
+import type { Session } from "../../common";
 import {
-  CreateSessionParams,
-  EntrySessionParams,
+  attachFailedNotification,
+  createStoreWithPersist,
+} from "../../common/model-utils";
+import type {
+  SignUpParams,
+  SignInParams,
   GetUserResponse,
-  EntrySessionResponse,
-  CreateSessionResponse,
+  SignInResponse,
+  SignUpResponse,
 } from "./types";
 import { setCookie, deleteCookie } from "./utils";
 
 export const saveTokenToCookie = createEvent<string>();
 export const reset = createEvent();
+export const fetchUser = createEvent<void>();
 
 export const $session = createStore<Session | null>(null);
-export const $token = createStore<string | null>(null);
+export const $token = createStoreWithPersist<string | null>(null, "token");
+
 export const $isAuth = $session.map((user) => user !== null);
 
-export const fetchSessionFx = createEffect<
+export const fetchUserFx = createEffect<
   void,
-  AxiosResponse<GetUserResponse>
->().use(() => {
-  return request.get<GetUserResponse>(Methods.getSession, true);
-});
+  AxiosResponse<GetUserResponse>,
+  AxiosResponse<ApiError>
+>().use(() => request.get<GetUserResponse>(Methods.fetchUser, true));
 
-export const createUserFx = createEffect<
-  CreateSessionParams,
-  AxiosResponse<CreateSessionResponse>
->((params) => {
-  return request.post<CreateSessionParams, CreateSessionResponse>(
-    Methods.createSession,
-    params
-  );
-});
+export const signUpFx = createEffect<
+  SignUpParams,
+  AxiosResponse<SignUpResponse>,
+  AxiosResponse<ApiError>
+>((params) =>
+  request.post<SignUpParams, SignUpResponse>(Methods.signUp, params)
+);
 
-export const loginFx = createEffect<
-  EntrySessionParams,
-  AxiosResponse<EntrySessionResponse>
->((params) => {
-  return request.post<EntrySessionParams, EntrySessionResponse>(
-    Methods.entrySession,
-    params
-  );
-});
+export const signInFx = createEffect<
+  SignInParams,
+  AxiosResponse<SignInResponse>,
+  AxiosResponse<ApiError>
+>((params) =>
+  request.post<SignInParams, SignInResponse>(Methods.signIn, params)
+);
 
 export const logOutFx = createEffect<void, null>(() => {
   return null;
 });
 
-export const $sessionGetPending = combine(
-  [$session, fetchSessionFx.pending],
-  ([session, pending]) => !session && pending
-);
-
 $session
-  .on(fetchSessionFx.doneData, (_, { data }) => data.payload)
+  .on(fetchUserFx.doneData, (_, { data }) => data.payload)
+  .on(
+    merge([signInFx.doneData, signUpFx.doneData]),
+    (_, { data }) => data.payload.user
+  )
   .reset(reset);
 
 $token
   .on(
-    merge([loginFx.doneData, createUserFx.doneData]),
+    merge([signInFx.doneData, signUpFx.doneData]),
     (_, { data }) => data.payload.token
   )
   .reset(reset);
+
+guard({
+  source: fetchUser,
+  filter: $token.map(Boolean),
+  target: fetchUserFx,
+});
 
 guard({
   source: $token,
@@ -85,6 +90,14 @@ forward({
   from: logOutFx.done,
   to: reset,
 });
+
+forward({
+  from: fetchUserFx.failData,
+  to: logOutFx,
+});
+
+attachFailedNotification(signInFx);
+attachFailedNotification(signUpFx);
 
 saveTokenToCookie.watch((token) => {
   setCookie("x-token", token);

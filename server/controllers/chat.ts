@@ -4,12 +4,15 @@ import { Chat } from "../ws/types";
 export async function sendMessage({
   userId,
   message,
+  name,
 }: {
   userId: string;
   message: string;
+  name: string;
 }): Promise<Chat> {
   const result = await ChatModel.create({
     userId,
+    name,
     text: message,
   });
 

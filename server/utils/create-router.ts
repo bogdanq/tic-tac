@@ -66,7 +66,8 @@ async function sendChatMessage({
   session: Session;
 }): Promise<SendMessagesResponse> {
   const message = await sendMessage({
-    userId: session.id,
+    userId: session.userId,
+    name: session.name,
     // @ts-ignore
     message: parsedReq.payload.message || "",
   });

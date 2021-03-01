@@ -1,4 +1,11 @@
-import { createEffect, createStore, createEvent, merge } from "effector";
+import {
+  createEffect,
+  createStore,
+  createEvent,
+  merge,
+  restore,
+  forward,
+} from "effector";
 import { subscribeEvent } from "../../../../api/ws/client";
 import {
   Chat,
@@ -13,6 +20,8 @@ import { fetchChatMessagesWs, sendChatMessagesWs } from "../../api";
 export const sendChatMessage = createEvent<SendMessagesResponse["payload"]>(
   Methods.chatSendMessage
 );
+
+export const changeMessage = createEvent<string>();
 
 export const fetchChatMessagesFx = createEffect<
   void,
@@ -30,6 +39,7 @@ export const sendChatMessagesFx = createEffect<
 >(Methods.chatSendMessage).use(sendChatMessagesWs);
 
 export const $messages = createStore<Chat[]>([]);
+export const $message = restore(changeMessage, "");
 
 $messages
   .on(fetchChatMessagesFx.doneData, (state, { payload }) => [
@@ -38,8 +48,21 @@ $messages
   ])
   .on(
     merge([sendChatMessagesFx.doneData, sendChatMessage]),
-    (state, { payload }) => [payload.message, ...state]
+    (messages, { payload }) => {
+      if (messages.length >= 50) {
+        const nextMessages = messages.slice(0, messages.length - 1);
+
+        return [payload.message, ...nextMessages];
+      }
+
+      return [payload.message, ...messages];
+    }
   );
+
+forward({
+  from: sendChatMessagesFx.doneData,
+  to: changeMessage.prepend(() => ""),
+});
 
 export const fetchMessages = () => {
   fetchChatMessagesFx();

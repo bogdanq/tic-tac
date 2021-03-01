@@ -1,31 +1,31 @@
 import { Methods, Type } from "../../api/ws/types";
 import { Session } from "../../common";
 
-export type CreateSessionParams = {
+export type SignUpParams = {
   email: string;
   name: string;
   password: string;
 };
 
-export type EntrySessionParams = {
+export type SignInParams = {
   email: string;
   password: string;
 };
 
 export type GetUserResponse = {
-  method: Methods.getSession;
+  method: Methods.fetchUser;
   type: Type.default;
   payload: Session;
 };
 
-export type EntrySessionResponse = {
-  method: Methods.entrySession;
+export type SignInResponse = {
+  method: Methods.signIn;
   type: Type.default;
-  payload: Pick<Session, "email" | "id" | "name"> & { token: string };
+  payload: { user: Session; token: string };
 };
 
-export type CreateSessionResponse = {
-  method: Methods.entrySession;
+export type SignUpResponse = {
+  method: Methods.signUp;
   type: Type.default;
-  payload: Pick<Session, "email" | "id" | "name"> & { token: string };
+  payload: { user: Session; token: string };
 };

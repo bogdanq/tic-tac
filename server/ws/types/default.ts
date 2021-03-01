@@ -5,6 +5,8 @@ import { GetMessagesResponse, SendMessagesResponse } from "./chat";
 export type Session = {
   token: string;
   userEmail: string;
+  name: string;
+  userId: string;
 } & Document;
 
 export enum Methods {

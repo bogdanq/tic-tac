@@ -3,6 +3,7 @@ import { Methods, Type, CommonResponse } from "./default";
 
 export type Chat = {
   userId: string;
+  name: string;
   text: string;
 } & Document;
 

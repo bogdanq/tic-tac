@@ -3,6 +3,7 @@ import { Methods, Type, CommonResponse, SubscriptionMethods } from "./ws";
 
 export type Chat = {
   userId: string;
+  name: string;
   text: string;
 } & Document;
 

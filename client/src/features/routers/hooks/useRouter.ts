@@ -7,7 +7,7 @@ export const useRouter = (context: RouteContext) => {
   const routes = useMemo(
     () =>
       createRoutes<RouteContext>({
-        config: getRoutes(),
+        config: getRoutes,
         context,
       }),
     [context]

@@ -40,14 +40,14 @@ export function withLogger(axios: AxiosInstance) {
       console.log(
         `%c AXIOS [response-error]`,
         "color: red; font-weight: bold",
-        error
+        error.response
       );
 
       if (isNetworkError(error)) {
         return Promise.reject(new Error(NO_CONNECTION_MESSAGE));
       }
 
-      return Promise.reject(error);
+      return Promise.reject(error.response);
     }
   );
 

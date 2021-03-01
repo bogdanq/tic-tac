@@ -1,15 +1,15 @@
 import React from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
-import { useStore } from "effector-react";
 
-import { useRouter } from "./features/routers";
-import { $session } from "./features/session";
-import { PageWrapper } from "./ui";
+import { PageWrapper, HomeLoader } from "./ui";
+import { useInitialApp } from "./common";
 
 export function App() {
-  const session = useStore($session);
+  const { routes, pending } = useInitialApp();
 
-  const routes = useRouter({ session });
+  if (pending) {
+    return <HomeLoader />;
+  }
 
   return (
     <PageWrapper>

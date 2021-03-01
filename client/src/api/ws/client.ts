@@ -1,4 +1,4 @@
-import { createEffect, createEvent, guard } from "effector";
+import { createEffect, createEvent, createStore, guard } from "effector";
 import { nanoid } from "nanoid";
 import { getCookie } from "../../features/session/utils";
 import { DefaultResponse, wsRequest, Type, Methods } from "./types";
@@ -32,14 +32,24 @@ export const subscribeEvent = ({
   });
 };
 
-const open = createEvent<any>("open");
-// const closed = createEvent("closed");
+export const open = createEvent<any>("open");
+export const connectSocket = createEvent<boolean>();
+export const closed = createEvent("closed");
 // const error = createEvent("error");
-const onMessage = createEvent<MessageEvent<string>>("message");
+export const onMessage = createEvent<MessageEvent<string>>("message");
 export const subscribe = createEvent<{
   method: DefaultResponse["method"];
   payload: DefaultResponse["payload"];
 }>("subscribe");
+
+export const $connect = createStore<{
+  isConnected: boolean;
+  error: string | null;
+}>({ isConnected: false, error: null });
+
+$connect
+  .on(connectSocket, (s, isConnected) => ({ ...s, isConnected }))
+  .reset(closed);
 
 onMessage
   .map((message) => {
@@ -111,22 +121,29 @@ export const send = createEffect<Omit<wsRequest, "reqId">, DefaultResponse>(
   }
 );
 
-export function connect(cb: any) {
+export function connect() {
   const cookie = getCookie("x-token");
 
-  try {
-    console.info(`Try to connect on ${wsURL}`);
-    socket = new WebSocket(wsURL, [cookie]);
-  } catch (e) {
-    throw new Error(e.message);
-  } finally {
-    socket.onopen = (event) => open(event);
-    socket.onmessage = (message) => onMessage(message);
-
-    setTimeout(() => {
-      cb();
-    }, 500);
+  if (socket) {
+    return;
   }
+
+  socket = new WebSocket(wsURL, [cookie]);
+
+  socket.onopen = (event) => {
+    console.info(`Try to connect on ${wsURL}`);
+
+    open(event);
+
+    connectSocket(true);
+  };
+
+  socket.onmessage = (message) => onMessage(message);
+
+  socket.onerror = (event) => {
+    console.info(`Socket error`);
+    connectSocket(false);
+  };
 }
 
 send.watch((payload) => console.log("Запрос", payload));

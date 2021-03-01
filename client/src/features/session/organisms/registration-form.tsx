@@ -1,9 +1,11 @@
 import React from "react";
 import * as yup from "yup";
 import { Formik, Form } from "formik";
-import { FormikInput, Button } from "../../../ui";
+import { useStore } from "effector-react";
 
+import { FormikInput, Button } from "../../../ui";
 import { FormWrapper, SessionFormHeader } from "../molecules";
+import { signUpFx } from "../model";
 
 const initialValues = {
   name: "",
@@ -13,19 +15,21 @@ const initialValues = {
 };
 
 const validationSchema = yup.object({
-  login: yup.string().required("Обязательно для заполнения"),
+  name: yup.string().required("Обязательно для заполнения"),
   email: yup.string().required("Обязательно для заполнения"),
   password: yup.string().required("Обязательно для заполнения"),
   repeatPassword: yup.string().required("Обязательно для заполнения"),
 });
 
 export const RegistrationForm = () => {
+  const pending = useStore(signUpFx.pending);
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={(values) => {
-        console.log(values);
+        signUpFx(values);
       }}
     >
       {({ isValid }) => {
@@ -44,11 +48,11 @@ export const RegistrationForm = () => {
               />
               <FormikInput
                 placeholder="Повторите пароль"
-                name="password"
+                name="repeatPassword"
                 type="password"
               />
 
-              <Button type="submit" disabled={!isValid}>
+              <Button type="submit" disabled={!isValid || pending}>
                 Регистрация
               </Button>
             </FormWrapper>

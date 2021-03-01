@@ -22,11 +22,11 @@ export type User = {
 };
 
 export type Session = {
-  id: string;
   email: string;
   name: string;
   password: string;
   currentGameId: string;
   friends: string[];
   blockedUser: string[];
+  _id: string;
 };

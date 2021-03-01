@@ -44,4 +44,41 @@ h2 span {
 
   --color-primary-background: #f1f1f1;
   --color-primary-background-button: #53b843;
+
+  --color-default-message: var(--gray_300);
+
+  --gray_300: #b2b2b2;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 5px;
+  background-color: var(--color-default-border);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 9em;
+  background-color: var(--color-default-message);
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background-color: var(--color-default-border);
+}
+
+::-webkit-scrollbar-button:vertical:end:increment {
+  background-color: var(--color-default-border);
+}
+
+::-webkit-scrollbar-button:horizontal:start:decrement {
+  background-color: var(--color-default-message);
+}
+
+::-webkit-scrollbar-button:horizontal:end:increment {
+  background-color: var(--color-default-message);
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 50px var(--color-primary-background) !important;
+  -webkit-text-fill-color: var(--color-default-text) !important;
+  color: var(--color-default-text) !important;
 }

@@ -11,9 +11,9 @@ export enum Type {
 }
 
 export enum Methods {
-  getSession = "session.get",
-  createSession = "session.create",
-  entrySession = "session.entry",
+  fetchUser = "session.get",
+  signUp = "session.create",
+  signIn = "session.entry",
 
   chatMessages = "chat.messages",
   chatSendMessage = "chat.send.message",

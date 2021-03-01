@@ -13,7 +13,7 @@ export type ShortUser = {
 };
 
 export type User = {
-  id: string;
+  _id: string;
   email: string;
   name: string;
   password: string;
@@ -32,7 +32,7 @@ export type CreateUsersParams = {
 export type CreateUsersResponse = {
   method: Methods.createSession;
   type: Type.default;
-  payload: ShortUser & { token: string };
+  payload: { token: string; user: User };
 };
 
 export type LoginUsersParams = {
@@ -44,7 +44,7 @@ export type LoginUsersParams = {
 export type LoginUsersResponse = {
   method: Methods.entrySession;
   type: Type.default;
-  payload: ShortUser & { token: string };
+  payload: { token: string; user: User };
 };
 
 export type GetUserResponse = {

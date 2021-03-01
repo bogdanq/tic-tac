@@ -6,7 +6,7 @@ import { Login, Registration, TicTacBoard, NotFound } from "../../pages";
 import { onlyAuth, onlyGuest } from "./guards";
 import { RouteContext } from "./types";
 
-export const getRoutes = (): RouteTypes<RouteContext> => [
+export const getRoutes: RouteTypes<RouteContext> = [
   {
     component: Login,
     path: "/sign-in",

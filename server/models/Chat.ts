@@ -4,6 +4,7 @@ import { Chat } from "../ws/types";
 const ChatSchema = new Schema(
   {
     userId: String,
+    name: String,
     text: String,
   },
   {

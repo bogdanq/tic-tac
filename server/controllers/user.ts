@@ -38,7 +38,7 @@ export async function createUser(
     const result: CreateUsersResponse = {
       method: Methods.createSession,
       type: Type.default,
-      payload: { email, name, id: user._id, token },
+      payload: { user, token },
     };
 
     response.status(200).send(result);
@@ -64,7 +64,7 @@ export async function userLogin(
   const error: Omit<ErrorResponse, "reqId"> = {
     method: Methods.entrySession,
     payload: null,
-    error: "Не правильный логин или пароль",
+    error: "Не верный логин или пароль",
     code: 404,
     isSuccess: false,
   };
@@ -79,23 +79,19 @@ export async function userLogin(
         method: Methods.entrySession,
         type: Type.default,
         payload: {
-          email: user.email,
-          name: user.name,
-          id: user._id,
+          user,
           token,
         },
       };
 
       response.status(200).send(result);
-
-      return;
     }
 
     response.status(404).send(error);
   } catch ({ message }) {
     response.status(404).send({
       ...error,
-      error: "Произошла ошибка при проверке пользователя",
+      error: "Произошла ошибка при выполнении входа",
     });
   }
 }
@@ -103,11 +99,11 @@ export async function userLogin(
 export async function getUserFromSession(
   request: Request,
   response?: express.Response
-): Promise<User> {
+) {
   const error: Omit<ErrorResponse, "reqId"> = {
     method: Methods.getSession,
     payload: null,
-    error: "Произошла ошибка при проверки пользователя",
+    error: "Произошла ошибка при проверке пользователя",
     code: 404,
     isSuccess: false,
   };
@@ -127,7 +123,7 @@ export async function getUserFromSession(
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      response.status(404).send({
+      response.status(401).send({
         ...error,
         error: "Нет пользователя",
       });
@@ -140,11 +136,7 @@ export async function getUserFromSession(
     };
 
     response.status(200).send(result);
-
-    return user;
   } catch {
     response.status(404).send(error);
-
-    return null;
   }
 }
